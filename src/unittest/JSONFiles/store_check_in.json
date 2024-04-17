@@ -1,0 +1,11 @@
+[
+  {
+    "_HotelStay__alg": "SHA-256",
+    "_HotelStay__type": "SINGLE",
+    "_HotelStay__idcard": "12345678Z",
+    "_HotelStay__localizer": "450a53be9b39944e62e7164ca5f5aadf",
+    "_HotelStay__arrival": 1719838800.0,
+    "_HotelStay__departure": 1719925200.0,
+    "_HotelStay__room_key": "4f57880d4240350db9b276c84edaacc923a63906a408cc8da2b52c49213d3859"
+  }
+]
