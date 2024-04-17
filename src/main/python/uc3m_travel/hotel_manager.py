@@ -200,12 +200,7 @@ class HotelManager:
         """manages the arrival of a guest with a reservation"""
         input_list = self.store_json_into_list(file_input, "Error: file input not found")
 
-        # comprobar valores del fichero
-        try:
-            my_localizer = input_list["Localizer"]
-            my_id_card = input_list["IdCard"]
-        except KeyError as e:
-            raise HotelManagementException("Error - Invalid Key in JSON") from e
+        my_id_card, my_localizer = self.load_json_values(input_list)
 
         self.check_id_card(my_id_card)
 
@@ -235,7 +230,7 @@ class HotelManager:
             raise HotelManagementException("Error: localizer not found")
         if my_id_card != reservation_id_card:
             raise HotelManagementException("Error: Localizer is not correct for this IdCard")
-        # regenrar clave y ver si coincide
+        # regenerate clave y ver si coincide
         reservation_date = datetime.fromtimestamp(reservation_date_timestamp)
 
         with freeze_time(reservation_date):
@@ -249,11 +244,7 @@ class HotelManager:
         if new_reservation.localizer != my_localizer:
             raise HotelManagementException("Error: reservation has been manipulated")
 
-        # compruebo si hoy es la fecha de checkin
-        reservation_format = "%d/%m/%Y"
-        date_obj = datetime.strptime(reservation_date_arrival, reservation_format)
-        if date_obj.date() != datetime.date(datetime.utcnow()):
-            raise HotelManagementException("Error: today is not reservation date")
+        self.check_equals_date(reservation_date_arrival)
 
         # genero la room key para ello llamo a Hotel Stay
         my_checkin = HotelStay(idcard=my_id_card, numdays=int(reservation_days),
@@ -280,6 +271,24 @@ class HotelManager:
             raise HotelManagementException("Wrong file  or file path") from ex
 
         return my_checkin.room_key
+
+    def check_equals_date(self, reservation_date_arrival):
+        """checks if the date corresponds to the expected"""
+        # compruebo si hoy es la fecha de checkin
+        reservation_format = "%d/%m/%Y"
+        date_obj = datetime.strptime(reservation_date_arrival, reservation_format)
+        if date_obj.date() != datetime.date(datetime.utcnow()):
+            raise HotelManagementException("Error: today is not reservation date")
+
+    def load_json_values(self, input_list):
+        """loads the data from a json into two separate values"""
+        # comprobar valores del fichero
+        try:
+            my_localizer = input_list["Localizer"]
+            my_id_card = input_list["IdCard"]
+        except KeyError as e:
+            raise HotelManagementException("Error - Invalid Key in JSON") from e
+        return my_id_card, my_localizer
 
     def store_data_into_list_if_file_exists(self, file_store) -> list:
         """in charge of loading the json into a list, if the file does not exist,
