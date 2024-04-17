@@ -216,23 +216,23 @@ class HotelManager:
         my_checkin = HotelStay(idcard=my_id_card, numdays=int(reservation_days),
                                localizer=my_localizer, roomtype=reservation_room_type)
 
-        #Ahora lo guardo en el almacen nuevo de checkin
+        self.save_checkin(my_checkin)
+
+        return my_checkin.room_key
+
+    def save_checkin(self, my_checkin):
+        """saves the information obtained from the checkin"""
+        # Ahora lo guardo en el almacen nuevo de checkin
         # escribo el fichero Json con todos los datos
         file_store = JSON_FILES_PATH + "store_check_in.json"
-
         room_key_list = self.store_data_into_list_if_file_exists(file_store)
-
         # comprobar que no he hecho otro ckeckin antes
         for item in room_key_list:
             if my_checkin.room_key == item["_HotelStay__room_key"]:
                 raise HotelManagementException("ckeckin  ya realizado")
-
-        #añado los datos de mi reserva a la lista , a lo que hubiera
+        # añado los datos de mi reserva a la lista , a lo que hubiera
         room_key_list.append(my_checkin.__dict__)
-
         self.write_into_json(file_store, room_key_list)
-
-        return my_checkin.room_key
 
     def get_and_validate_json(self, input_list):
         """gets JSON info and then validates it"""
