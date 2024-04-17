@@ -1,0 +1,58 @@
+VALID_INVALID;ID_TEST;FILE;EXPECTED_RESULT
+VALID;RF2 1;key_ok.json;4f57880d4240350db9b276c84edaacc923a63906a408cc8da2b52c49213d3859
+INVALID;RF2 2;key_ok2.json;Error: localizer not found
+INVALID;RF2 4;bad_IdCard_character_invalid.json;Invalid IdCard format
+INVALID;RF2 5;bad_IdCard_numeric_character.json;Invalid IdCard format
+INVALID;RF2 15;double_colon.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 16;double_comma.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 19;double_final_brace.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 20;double_first_quote.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 21;double_fourth_quote.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 22;double_inicial_brace.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 23;double_label_localizer_in_quotes.json;Error - Invalid Key in JSON
+INVALID;RF2 24;double_label_localizer.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 25;double_label_IdCard_in_quotes.json;Error - Invalid Key in JSON
+INVALID;RF2 26;double_label_IdCard.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 29;double_second_quote.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 30;double_third_quote.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 31;double_value_localizer_in_quotes.json;Invalid localizer
+INVALID;RF2 32;double_value_localizer.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 33;double_value_IdCard_in_quotes.json;Invalid IdCard format
+INVALID;RF2 34;double_value_IdCard.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 37;invalid_colon.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 38;invalid_comma.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 39;invalid_final_brace.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 40;invalid_first_quote.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 41;invalid_fourth_quote.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 42;invalid_inicial_brace.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 43;invalid_second_quote.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 44;invalid_third_quote.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 45;key_bad_localizer.json;Invalid localizer
+INVALID;RF2 47;key_bad_label1.json;Error - Invalid Key in JSON
+INVALID;RF2 48;key_bad_label2.json;Error - Invalid Key in JSON
+INVALID;RF2 50;key_eliminated_comma.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 51;key_empty_json.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 52;key_incorrect_IdCard_letter.json;Invalid IdCard letter
+INVALID;RF2 53;key_nok.json;Error: Localizer is not correct for this IdCard
+INVALID;RF2 54;key_without_bracket.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 55;key_without_final_bracket.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 57;nada_localizer.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 58;nada_datos.json;Error - Invalid Key in JSON
+INVALID;RF2 59;nada_IdCard.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 61;no_colon_field1.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 62;no_IdCard_nodo.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 63;no_IdCard.json;Error - Invalid Key in JSON
+INVALID;RF2 64;no_label_1.json;Error - Invalid Key in JSON
+INVALID;RF2 67;no_node_localizer.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 70;no_quotation1_label1.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 71;no_quotation1_label1.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 72;no_quotation1_value1.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 73;no_quotation1_value1.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 74;no_quotation2_label1.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 75;no_quotation2_label1.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 76;no_quotation2_value1.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 77;no_quotation2_value1.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 78;no_valor_IdCard_nodo.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 79;no_valor_IdCard.json;Invalid IdCard format
+INVALID;RF2 80;no_value_localizer.json;JSON Decode Error - Wrong JSON Format
+INVALID;RF2 81;no_value1.json;JSON Decode Error - Wrong JSON Format
