@@ -134,8 +134,13 @@ class HotelManager:
                          num_days: int) -> str:
         """manages the hotel reservation: creates a reservation and saves it into a json file"""
 
-        my_reservation = self.data_checker(arrival_date, credit_card, id_card,
-                                           name_surname, num_days, phone_number, room_type)
+        self.check_id_card(id_card)
+
+        room_type = self.validate_room_type(room_type)
+
+        my_reservation = self.check_data(arrival_date, credit_card, id_card,
+                                         name_surname, num_days, phone_number,
+                                         room_type)
 
         # escribo el fichero Json con todos los datos
         file_store = JSON_FILES_PATH + "store_reservation.json"
@@ -161,16 +166,9 @@ class HotelManager:
 
         return my_reservation.localizer
 
-    def data_checker(self, arrival_date, credit_card, id_card,
-                     name_surname, num_days, phone_number, room_type):
-        """checks that the data introduced is correct"""
-        r = r'^[0-9]{8}[A-Z]{1}$'
-        my_regex = re.compile(r)
-        if not my_regex.fullmatch(id_card):
-            raise HotelManagementException("Invalid IdCard format")
-        if not self.validate_dni(id_card):
-            raise HotelManagementException("Invalid IdCard letter")
-        room_type = self.validate_room_type(room_type)
+    def check_data(self, arrival_date, credit_card, id_card,
+                   name_surname, num_days, phone_number, room_type):
+        """checks that the main data is correct"""
         r = r"^(?=^.{10,50}$)([a-zA-Z]+(\s[a-zA-Z]+)+)$"
         my_regex = re.compile(r)
         regex_matches = my_regex.fullmatch(name_surname)
@@ -189,6 +187,15 @@ class HotelManager:
                                           num_days=num_days)
         return my_reservation
 
+    def check_id_card(self, id_card):
+        """checks that the id_card format is correct"""
+        r = r'^[0-9]{8}[A-Z]{1}$'
+        my_regex = re.compile(r)
+        if not my_regex.fullmatch(id_card):
+            raise HotelManagementException("Invalid IdCard format")
+        if not self.validate_dni(id_card):
+            raise HotelManagementException("Invalid IdCard letter")
+
     def guest_arrival(self, file_input: str) -> str:
         """manages the arrival of a guest with a reservation"""
         input_list = self.store_json_into_list(file_input, "Error: file input not found")
@@ -200,12 +207,7 @@ class HotelManager:
         except KeyError as e:
             raise HotelManagementException("Error - Invalid Key in JSON") from e
 
-        r = r'^[0-9]{8}[A-Z]{1}$'
-        my_regex = re.compile(r)
-        if not my_regex.fullmatch(my_id_card):
-            raise HotelManagementException("Invalid IdCard format")
-        if not self.validate_dni(my_id_card):
-            raise HotelManagementException("Invalid IdCard letter")
+        self.check_id_card(my_id_card)
 
         self.validate_localizer(my_localizer)
         # self.validate_localizer() hay que validar
