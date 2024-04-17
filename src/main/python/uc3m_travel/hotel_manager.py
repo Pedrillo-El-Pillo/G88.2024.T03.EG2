@@ -196,11 +196,7 @@ class HotelManager:
         """manages the arrival of a guest with a reservation"""
         input_list = self.store_json_into_list(file_input, "Error: file input not found")
 
-        my_id_card, my_localizer = self.load_json_values(input_list)
-
-        self.check_id_card(my_id_card)
-
-        self.validate_localizer(my_localizer)
+        my_id_card, my_localizer = self.get_and_validate_json(input_list)
         # self.validate_localizer() hay que validar
 
         #buscar en almacen
@@ -237,6 +233,17 @@ class HotelManager:
         self.write_into_json(file_store, room_key_list)
 
         return my_checkin.room_key
+
+    def get_and_validate_json(self, input_list):
+        """gets JSON info and then validates it"""
+        try:
+            my_localizer = input_list["Localizer"]
+            my_id_card = input_list["IdCard"]
+        except KeyError as e:
+            raise HotelManagementException("Error - Invalid Key in JSON") from e
+        self.check_id_card(my_id_card)
+        self.validate_localizer(my_localizer)
+        return my_id_card, my_localizer
 
     def write_into_json(self, file_store, room_key_list):
         """write into the JSON the information needed"""
@@ -286,16 +293,6 @@ class HotelManager:
         date_obj = datetime.strptime(reservation_date_arrival, reservation_format)
         if date_obj.date() != datetime.date(datetime.utcnow()):
             raise HotelManagementException("Error: today is not reservation date")
-
-    def load_json_values(self, input_list):
-        """loads the data from a json into two separate values"""
-        # comprobar valores del fichero
-        try:
-            my_localizer = input_list["Localizer"]
-            my_id_card = input_list["IdCard"]
-        except KeyError as e:
-            raise HotelManagementException("Error - Invalid Key in JSON") from e
-        return my_id_card, my_localizer
 
     def store_data_into_list_if_file_exists(self, file_store) -> list:
         """in charge of loading the json into a list, if the file does not exist,
