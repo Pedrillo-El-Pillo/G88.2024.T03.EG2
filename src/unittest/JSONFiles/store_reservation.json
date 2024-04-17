@@ -1,0 +1,46 @@
+[
+  {
+    "_HotelReservation__credit_card_number": "5105105105105100",
+    "_HotelReservation__id_card": "12345678Z",
+    "_HotelReservation__arrival": "01/07/2024",
+    "_HotelReservation__reservation_date": 1711112400.0,
+    "_HotelReservation__name_surname": "JOSE LOPEZ",
+    "_HotelReservation__phone_number": "+341234567",
+    "_HotelReservation__room_type": "SINGLE",
+    "_HotelReservation__num_days": 1,
+    "_HotelReservation__localizer": "450a53be9b39944e62e7164ca5f5aadf"
+  },
+  {
+    "_HotelReservation__credit_card_number": "5105105105105100",
+    "_HotelReservation__id_card": "05270358T",
+    "_HotelReservation__arrival": "01/07/2024",
+    "_HotelReservation__reservation_date": 1711112400.0,
+    "_HotelReservation__name_surname": "JOSE SANCHO",
+    "_HotelReservation__phone_number": "+341234567",
+    "_HotelReservation__room_type": "DOUBLE",
+    "_HotelReservation__num_days": 2,
+    "_HotelReservation__localizer": "74a961610a0f1c048976007358ba7155"
+  },
+  {
+    "_HotelReservation__credit_card_number": "5105105105105100",
+    "_HotelReservation__id_card": "87654123L",
+    "_HotelReservation__arrival": "01/07/2024",
+    "_HotelReservation__reservation_date": 1711112400.0,
+    "_HotelReservation__name_surname": "Esmeralda Guillermina Pagatzaurtunduagoienengoazua",
+    "_HotelReservation__phone_number": "+341234567",
+    "_HotelReservation__room_type": "SUITE",
+    "_HotelReservation__num_days": 9,
+    "_HotelReservation__localizer": "846940dc519dfeabf68522ff4e71ae8e"
+  },
+  {
+    "_HotelReservation__credit_card_number": "5105105105105100",
+    "_HotelReservation__id_card": "87654321X",
+    "_HotelReservation__arrival": "01/07/2024",
+    "_HotelReservation__reservation_date": 1711112400.0,
+    "_HotelReservation__name_surname": "Esmeralda Guillermina Pagatzaurtunduagoienengoaza",
+    "_HotelReservation__phone_number": "+341234567",
+    "_HotelReservation__room_type": "SUITE",
+    "_HotelReservation__num_days": 10,
+    "_HotelReservation__localizer": "2e6701dd0b065faa56d7199d878d928e"
+  }
+]
