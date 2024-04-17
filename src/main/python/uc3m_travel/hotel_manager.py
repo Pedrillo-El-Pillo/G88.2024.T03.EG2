@@ -105,13 +105,7 @@ class HotelManager:
 
     def read_data_from_json(self, fi):
         """reads the content of a json file with two fields: CreditCard and phoneNumber"""
-        try:
-            with open(fi, encoding='utf-8') as f:
-                json_data = json.load(f)
-        except FileNotFoundError as e:
-            raise HotelManagementException("Wrong file or file path") from e
-        except json.JSONDecodeError as e:
-            raise HotelManagementException("JSON Decode Error - Wrong JSON Format") from e
+        json_data = self.store_json_into_list(fi, "Wrong file or file path")
         try:
             c = json_data["CreditCard"]
             p = json_data["phoneNumber"]
@@ -171,13 +165,7 @@ class HotelManager:
         file_store = JSON_FILES_PATH + "store_reservation.json"
 
         #leo los datos del fichero si existe , y si no existe creo una lista vacia
-        try:
-            with open(file_store, "r", encoding="utf-8", newline="") as file:
-                data_list = json.load(file)
-        except FileNotFoundError:
-            data_list = []
-        except json.JSONDecodeError as ex:
-            raise HotelManagementException ("JSON Decode Error - Wrong JSON Format") from ex
+        data_list = self.store_data_into_list_if_file_exists(file_store)
 
         #compruebo que esta reserva no esta en la lista
         for item in data_list:
@@ -269,14 +257,7 @@ class HotelManager:
         # escribo el fichero Json con todos los datos
         file_store = JSON_FILES_PATH + "store_check_in.json"
 
-        # leo los datos del fichero si existe , y si no existe creo una lista vacia
-        try:
-            with open(file_store, "r", encoding="utf-8", newline="") as file:
-                room_key_list = json.load(file)
-        except FileNotFoundError:
-            room_key_list = []
-        except json.JSONDecodeError as ex:
-            raise HotelManagementException("JSON Decode Error - Wrong JSON Format") from ex
+        room_key_list = self.store_data_into_list_if_file_exists(file_store)
 
         # comprobar que no he hecho otro ckeckin antes
         for item in room_key_list:
@@ -293,6 +274,17 @@ class HotelManager:
             raise HotelManagementException("Wrong file  or file path") from ex
 
         return my_checkin.room_key
+
+    def store_data_into_list_if_file_exists(self, file_store):
+        # leo los datos del fichero si existe , y si no existe creo una lista vacia
+        try:
+            with open(file_store, "r", encoding="utf-8", newline="") as file:
+                room_key_list = json.load(file)
+        except FileNotFoundError:
+            room_key_list = []
+        except json.JSONDecodeError as ex:
+            raise HotelManagementException("JSON Decode Error - Wrong JSON Format") from ex
+        return room_key_list
 
     def store_json_into_list(self, file_input, error_message):
         try:
@@ -325,13 +317,7 @@ class HotelManager:
             raise HotelManagementException("Error: today is not the departure day")
 
         file_store_checkout = JSON_FILES_PATH + "store_check_out.json"
-        try:
-            with open(file_store_checkout, "r", encoding="utf-8", newline="") as file:
-                room_key_list = json.load(file)
-        except FileNotFoundError as ex:
-            room_key_list = []
-        except json.JSONDecodeError as ex:
-            raise HotelManagementException("JSON Decode Error - Wrong JSON Format") from ex
+        room_key_list = self.store_data_into_list_if_file_exists(file_store_checkout)
 
         for checkout in room_key_list:
             if checkout["room_key"] == room_key:
