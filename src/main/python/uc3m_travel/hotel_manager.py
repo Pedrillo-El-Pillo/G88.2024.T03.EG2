@@ -199,13 +199,7 @@ class HotelManager:
 
     def guest_arrival(self, file_input:str)->str:
         """manages the arrival of a guest with a reservation"""
-        try:
-            with open(file_input, "r", encoding="utf-8", newline="") as file:
-                input_list = json.load(file)
-        except FileNotFoundError as ex:
-            raise HotelManagementException ("Error: file input not found") from ex
-        except json.JSONDecodeError as ex:
-            raise HotelManagementException ("JSON Decode Error - Wrong JSON Format") from ex
+        input_list = self.store_json_into_list(file_input, "Error: file input not found")
 
         # comprobar valores del fichero
         try:
@@ -226,16 +220,9 @@ class HotelManager:
 
         #buscar en almacen
         file_store = JSON_FILES_PATH + "store_reservation.json"
-
         #leo los datos del fichero , si no existe deber dar error porque el almacen de reservaa
         # debe existir para hacer el checkin
-        try:
-            with open(file_store, "r", encoding="utf-8", newline="") as file:
-                store_list = json.load(file)
-        except FileNotFoundError as ex:
-            raise HotelManagementException ("Error: store reservation not found") from ex
-        except json.JSONDecodeError as ex:
-            raise HotelManagementException ("JSON Decode Error - Wrong JSON Format") from ex
+        store_list = self.store_json_into_list(file_store, "Error: store reservation not found")
         # compruebo si esa reserva esta en el almacen
         found = False
         for item in store_list:
@@ -286,7 +273,7 @@ class HotelManager:
         try:
             with open(file_store, "r", encoding="utf-8", newline="") as file:
                 room_key_list = json.load(file)
-        except FileNotFoundError as ex:
+        except FileNotFoundError:
             room_key_list = []
         except json.JSONDecodeError as ex:
             raise HotelManagementException("JSON Decode Error - Wrong JSON Format") from ex
@@ -307,18 +294,22 @@ class HotelManager:
 
         return my_checkin.room_key
 
+    def store_json_into_list(self, file_input, error_message):
+        try:
+            with open(file_input, "r", encoding="utf-8", newline="") as file:
+                input_list = json.load(file)
+        except FileNotFoundError as ex:
+            raise HotelManagementException(error_message) from ex
+        except json.JSONDecodeError as ex:
+            raise HotelManagementException("JSON Decode Error - Wrong JSON Format") from ex
+        return input_list
+
     def guest_checkout(self, room_key:str)->bool:
         """manages the checkout of a guest"""
         self.validate_roomkey(room_key)
         #check thawt the roomkey is stored in the checkins file
         file_store = JSON_FILES_PATH + "store_check_in.json"
-        try:
-            with open(file_store, "r", encoding="utf-8", newline="") as file:
-                room_key_list = json.load(file)
-        except FileNotFoundError as ex:
-            raise HotelManagementException("Error: store checkin not found") from ex
-        except json.JSONDecodeError as ex:
-            raise HotelManagementException("JSON Decode Error - Wrong JSON Format") from ex
+        room_key_list = self.store_json_into_list(file_store, "Error: store checkin not found")
 
         # comprobar que esa room_key es la que me han dado
         found = False
