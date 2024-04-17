@@ -158,11 +158,7 @@ class HotelManager:
         data_list.append(my_reservation.__dict__)
 
         #escribo la lista en el fichero
-        try:
-            with open(file_store, "w", encoding="utf-8", newline="") as file:
-                json.dump(data_list, file, indent=2)
-        except FileNotFoundError as ex:
-            raise HotelManagementException("Wrong file  or file path") from ex
+        self.write_into_json(file_store, data_list)
 
         return my_reservation.localizer
 
@@ -238,13 +234,17 @@ class HotelManager:
         #añado los datos de mi reserva a la lista , a lo que hubiera
         room_key_list.append(my_checkin.__dict__)
 
+        self.write_into_json(file_store, room_key_list)
+
+        return my_checkin.room_key
+
+    def write_into_json(self, file_store, room_key_list):
+        """write into the JSON the information needed"""
         try:
             with open(file_store, "w", encoding="utf-8", newline="") as file:
                 json.dump(room_key_list, file, indent=2)
         except FileNotFoundError as ex:
             raise HotelManagementException("Wrong file  or file path") from ex
-
-        return my_checkin.room_key
 
     def create_new_reservation(self, my_id_card, my_localizer, store_list):
         """checks that the reservation is correct, then creates it"""
@@ -353,10 +353,6 @@ class HotelManager:
 
         room_key_list.append(room_checkout)
 
-        try:
-            with open(file_store_checkout, "w", encoding="utf-8", newline="") as file:
-                json.dump(room_key_list, file, indent=2)
-        except FileNotFoundError as ex:
-            raise HotelManagementException("Wrong file  or file path") from ex
+        self.write_into_json(file_store_checkout, room_key_list)
 
         return True
