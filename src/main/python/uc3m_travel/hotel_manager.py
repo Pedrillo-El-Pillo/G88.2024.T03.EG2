@@ -42,6 +42,7 @@ class HotelManager:
             raise HotelManagementException("Invalid credit card number (not luhn)")
         return x
 
+    # ESTO TIENE QUE QUITARSE Y MOVERS A OTRA CLASE
     def validate_room_type(self, room_type):
         """validates the room type value using regex"""
         myregex = re.compile(r"(SINGLE|DOUBLE|SUITE)")
@@ -65,6 +66,7 @@ class HotelManager:
         if not res:
             raise HotelManagementException("Invalid phone number format")
         return phone_number
+
 
     def validate_numdays(self, num_days):
         """validates the number of days"""
@@ -272,6 +274,25 @@ class HotelManager:
             raise HotelManagementException("Error: localizer not found")
         if my_id_card != reservation_id_card:
             raise HotelManagementException("Error: Localizer is not correct for this IdCard")
+        self.generate_reservation(my_localizer, reservation_credit_card,
+                                  reservation_date_arrival,
+                                  reservation_date_timestamp,
+                                  reservation_days,
+                                  reservation_id_card,
+                                  reservation_name,
+                                  reservation_phone,
+                                  reservation_room_type)
+        return reservation_date_arrival, reservation_days, reservation_room_type
+
+    def generate_reservation(self, my_localizer, reservation_credit_card,
+                             reservation_date_arrival,
+                             reservation_date_timestamp,
+                             reservation_days,
+                             reservation_id_card,
+                             reservation_name,
+                             reservation_phone,
+                             reservation_room_type):
+        """generation a reservation instance"""
         # regenerate clave y ver si coincide
         reservation_date = datetime.fromtimestamp(reservation_date_timestamp)
         with freeze_time(reservation_date):
@@ -284,7 +305,6 @@ class HotelManager:
                                                phone_number=reservation_phone)
         if new_reservation.localizer != my_localizer:
             raise HotelManagementException("Error: reservation has been manipulated")
-        return reservation_date_arrival, reservation_days, reservation_room_type
 
     def check_equals_date(self, reservation_date_arrival):
         """checks if the date corresponds to the expected"""
