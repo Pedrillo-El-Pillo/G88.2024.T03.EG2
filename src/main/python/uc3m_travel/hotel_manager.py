@@ -134,22 +134,8 @@ class HotelManager:
                          num_days: int) -> str:
         """manages the hotel reservation: creates a reservation and saves it into a json file"""
 
-        r = r'^[0-9]{8}[A-Z]{1}$'
-        my_regex = re.compile(r)
-        if not my_regex.fullmatch(id_card):
-            raise HotelManagementException("Invalid IdCard format")
-        if not self.validate_dni(id_card):
-            raise HotelManagementException("Invalid IdCard letter")
-
-        room_type = self.validate_room_type(room_type)
-
-        my_reservation = self.data_checker(arrival_date,
-                                           credit_card,
-                                           id_card,
-                                           name_surname,
-                                           num_days,
-                                           phone_number,
-                                           room_type)
+        my_reservation = self.data_checker(arrival_date, credit_card, id_card,
+                                           name_surname, num_days, phone_number, room_type)
 
         # escribo el fichero Json con todos los datos
         file_store = JSON_FILES_PATH + "store_reservation.json"
@@ -175,9 +161,16 @@ class HotelManager:
 
         return my_reservation.localizer
 
-    def data_checker(self, arrival_date, credit_card, id_card, name_surname,
-                     num_days, phone_number, room_type)->object:
-        """checks that all the data is correctly introduced"""
+    def data_checker(self, arrival_date, credit_card, id_card,
+                     name_surname, num_days, phone_number, room_type):
+        """checks that the data introduced is correct"""
+        r = r'^[0-9]{8}[A-Z]{1}$'
+        my_regex = re.compile(r)
+        if not my_regex.fullmatch(id_card):
+            raise HotelManagementException("Invalid IdCard format")
+        if not self.validate_dni(id_card):
+            raise HotelManagementException("Invalid IdCard letter")
+        room_type = self.validate_room_type(room_type)
         r = r"^(?=^.{10,50}$)([a-zA-Z]+(\s[a-zA-Z]+)+)$"
         my_regex = re.compile(r)
         regex_matches = my_regex.fullmatch(name_surname)
@@ -337,7 +330,8 @@ class HotelManager:
             if checkout["room_key"] == room_key:
                 raise HotelManagementException("Guest is already out")
 
-        room_checkout = {"room_key": room_key, "checkout_time": datetime.timestamp(datetime.utcnow())}
+        room_checkout = {"room_key": room_key,
+                         "checkout_time": datetime.timestamp(datetime.utcnow())}
 
         room_key_list.append(room_checkout)
 
