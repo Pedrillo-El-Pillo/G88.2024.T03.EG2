@@ -2,6 +2,7 @@
 import re
 import json
 from datetime import datetime
+
 from uc3m_travel.hotel_management_exception import HotelManagementException
 from uc3m_travel.hotel_reservation import HotelReservation
 from uc3m_travel.hotel_stay import HotelStay
@@ -9,12 +10,8 @@ from uc3m_travel.hotel_management_config import JSON_FILES_PATH
 from freezegun import freeze_time
 
 
-class HotelManager:
-    """Class with all the methods for managing reservations and stays"""
-
-    def __init__(self):
-        pass
-
+class ValidateParameters:
+    """Superclass extracted from HotelManager()"""
     def validatecreditcard(self, credit_card):
         """validates the credit card number using luhn algorithm"""
         #taken form
@@ -42,7 +39,6 @@ class HotelManager:
             raise HotelManagementException("Invalid credit card number (not luhn)")
         return credit_card
 
-    # ESTO TIENE QUE QUITARSE Y MOVERS A OTRA CLASE
     def validate_room_type(self, room_type):
         """validates the room type value using regex"""
         myregex = re.compile(r"(SINGLE|DOUBLE|SUITE)")
@@ -66,7 +62,6 @@ class HotelManager:
         if not res:
             raise HotelManagementException("Invalid phone number format")
         return phone_number
-
 
     def validate_numdays(self, num_days):
         """validates the number of days"""
@@ -97,6 +92,12 @@ class HotelManager:
             raise HotelManagementException("Invalid localizer")
         return room_key
 
+
+class HotelManager(ValidateParameters):
+    """Class with all the methods for managing reservations and stays"""
+
+    def __init__(self):
+        pass
 
     def read_data_from_json(self, json_file):
         """reads the content of a json file with two fields: CreditCard and phoneNumber"""
@@ -349,8 +350,7 @@ class GuestCheckout:
         self.validate_roomkey(self.room_key)
         # check thawt the roomkey is stored in the checkins file
         file_store = JSON_FILES_PATH + "store_check_in.json"
-        room_key_list = self.hotel_manager.store_json_into_list(file_store,
-                                                                "Error: store checkin not found")
+        room_key_list = self.hotel_manager.store_json_into_list(file_store, "Error: store checkin not found")
 
         # comprobar que esa room_key es la que me han dado
         found = False
