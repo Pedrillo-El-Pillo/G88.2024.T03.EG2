@@ -15,23 +15,23 @@ class HotelManager:
     def __init__(self):
         pass
 
-    def validatecreditcard(self, x):
-        """validates the credit card number using luhn altorithm"""
+    def validatecreditcard(self, credit_card):
+        """validates the credit card number using luhn algorithm"""
         #taken form
         # https://allwin-raju-12.medium.com/
-        # credit-card-number-validation-using-luhns-algorithm-in-python-c0ed2fac6234
+        # credit-card-number-validation-using-luhn's-algorithm-in-python-c0ed2fac6234
         # PLEASE INCLUDE HERE THE CODE FOR VALIDATING THE GUID
         # RETURN TRUE IF THE GUID IS RIGHT, OR FALSE IN OTHER CASE
 
         myregex = re.compile(r"^[0-9]{16}")
-        res = myregex.fullmatch(x)
+        res = myregex.fullmatch(credit_card)
         if not res:
             raise HotelManagementException("Invalid credit card format")
 
         def digits_of(n):
             return [int(d) for d in str(n)]
 
-        digits = digits_of(x)
+        digits = digits_of(credit_card)
         odd_digits = digits[-1::-2]
         even_digits = digits[-2::-2]
         checksum = 0
@@ -40,7 +40,7 @@ class HotelManager:
             checksum += sum(digits_of(d * 2))
         if not checksum % 10 == 0:
             raise HotelManagementException("Invalid credit card number (not luhn)")
-        return x
+        return credit_card
 
     # ESTO TIENE QUE QUITARSE Y MOVERS A OTRA CLASE
     def validate_room_type(self, room_type):
@@ -79,41 +79,41 @@ class HotelManager:
         return num_days
 
     @staticmethod
-    def validate_dni(d):
+    def validate_dni(dni):
         """RETURN TRUE IF THE DNI IS RIGHT, OR FALSE IN OTHER CASE"""
-        c = {"0": "T", "1": "R", "2": "W", "3": "A", "4": "G", "5": "M",
+        dni_letter_dict = {"0": "T", "1": "R", "2": "W", "3": "A", "4": "G", "5": "M",
              "6": "Y", "7": "F", "8": "P", "9": "D", "10": "X", "11": "B",
              "12": "N", "13": "J", "14": "Z", "15": "S", "16": "Q", "17": "V",
              "18": "H", "19": "L", "20": "C", "21": "K", "22": "E"}
-        v = int(d[0:8])
-        r = str(v % 23)
-        return d[8] == c[r]
+        dni_numbers = int(dni[0:8])
+        dni_choose_letter = str(dni_numbers % 23)
+        return dni[8] == dni_letter_dict[dni_choose_letter]
 
-    def validate_localizer(self, l):
+    def validate_localizer(self, room_key):
         """validates the localizer format using a regex"""
-        r = r'^[a-fA-F0-9]{32}$'
-        myregex = re.compile(r)
-        if not myregex.fullmatch(l):
+        regex_format = r'^[a-fA-F0-9]{32}$'
+        myregex = re.compile(regex_format)
+        if not myregex.fullmatch(room_key):
             raise HotelManagementException("Invalid localizer")
-        return l
+        return room_key
 
 
-    def read_data_from_json(self, fi):
+    def read_data_from_json(self, json_file):
         """reads the content of a json file with two fields: CreditCard and phoneNumber"""
-        json_data = self.store_json_into_list(fi, "Wrong file or file path")
+        json_data = self.store_json_into_list(json_file, "Wrong file or file path")
         try:
-            c = json_data["CreditCard"]
-            p = json_data["phoneNumber"]
+            credit_card = json_data["CreditCard"]
+            phone_number = json_data["phoneNumber"]
             req = HotelReservation(id_card="12345678Z",
-                                   credit_card_number=c,
+                                   credit_card_number=credit_card,
                                    name_surname="John Doe",
-                                   phone_number=p,
+                                   phone_number=phone_number,
                                    room_type="single",
                                    num_days=3,
                                    arrival="20/01/2024")
         except KeyError as e:
             raise HotelManagementException("JSON Decode Error - Invalid JSON Key") from e
-        if not self.validatecreditcard(c):
+        if not self.validatecreditcard(credit_card):
             raise HotelManagementException("Invalid credit card number")
         # Close the file
         return req
@@ -160,8 +160,8 @@ class HotelManager:
     def check_data(self, arrival_date, credit_card, id_card,
                    name_surname, num_days, phone_number, room_type):
         """checks that the main data is correct"""
-        r = r"^(?=^.{10,50}$)([a-zA-Z]+(\s[a-zA-Z]+)+)$"
-        my_regex = re.compile(r)
+        regex_format = r"^(?=^.{10,50}$)([a-zA-Z]+(\s[a-zA-Z]+)+)$"
+        my_regex = re.compile(regex_format)
         regex_matches = my_regex.fullmatch(name_surname)
         if not regex_matches:
             raise HotelManagementException("Invalid name format")
@@ -180,8 +180,8 @@ class HotelManager:
 
     def check_id_card(self, id_card):
         """checks that the id_card format is correct"""
-        r = r'^[0-9]{8}[A-Z]{1}$'
-        my_regex = re.compile(r)
+        regex_format = r'^[0-9]{8}[A-Z]{1}$'
+        my_regex = re.compile(regex_format)
         if not my_regex.fullmatch(id_card):
             raise HotelManagementException("Invalid IdCard format")
         if not self.validate_dni(id_card):
@@ -194,7 +194,7 @@ class HotelManager:
         my_id_card, my_localizer = self.get_and_validate_json(input_list)
         # self.validate_localizer() hay que validar
 
-        #buscar en almacen
+        #buscar en almacén
         file_store = JSON_FILES_PATH + "store_reservation.json"
         #leo los datos del fichero , si no existe deber dar error porque el almacen de reservaa
         # debe existir para hacer el checkin
@@ -349,7 +349,8 @@ class GuestCheckout:
         self.validate_roomkey(self.room_key)
         # check thawt the roomkey is stored in the checkins file
         file_store = JSON_FILES_PATH + "store_check_in.json"
-        room_key_list = self.hotel_manager.store_json_into_list(file_store, "Error: store checkin not found")
+        room_key_list = self.hotel_manager.store_json_into_list(file_store,
+                                                                "Error: store checkin not found")
 
         # comprobar que esa room_key es la que me han dado
         found = False
@@ -380,10 +381,10 @@ class GuestCheckout:
 
         return True
 
-    def validate_roomkey(self, l):
+    def validate_roomkey(self, room_key):
         """validates the roomkey format using a regex"""
         r = r'^[a-fA-F0-9]{64}$'
         myregex = re.compile(r)
-        if not myregex.fullmatch(l):
+        if not myregex.fullmatch(room_key):
             raise HotelManagementException("Invalid room key format")
-        return l
+        return room_key
