@@ -25,8 +25,9 @@ class ValidateParameters:
         if not res:
             raise HotelManagementException("Invalid credit card format")
 
-        def digits_of(n):
-            return [int(d) for d in str(n)]
+        def digits_of(credit_card):
+            """Does the luhn's algorithm to check the credit card"""
+            return [int(d) for d in str(credit_card)]
 
         digits = digits_of(credit_card)
         odd_digits = digits[-1::-2]
