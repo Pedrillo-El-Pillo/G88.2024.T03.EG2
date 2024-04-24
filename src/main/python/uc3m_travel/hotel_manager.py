@@ -350,58 +350,47 @@ class HotelManager():
                 raise HotelManagementException("JSON Decode Error - Wrong JSON Format") from ex
             return input_list
 
+        def validate_roomkey(self, room_key):
+            """validates the roomkey format using a regex"""
+            r = r'^[a-fA-F0-9]{64}$'
+            myregex = re.compile(r)
+            if not myregex.fullmatch(room_key):
+                raise HotelManagementException("Invalid room key format")
+            return room_key
+
+
         def guest_checkout(self, room_key: str) -> bool:
             """manages the checkout of a guest"""
-            successful = GuestCheckout(room_key).checkout()
-            return successful
+            self.validate_roomkey(room_key)
+            # check thawt the roomkey is stored in the checkins file
+            file_store = JSON_FILES_PATH + "store_check_in.json"
+            room_key_list = self.store_json_into_list(file_store, "Error: store checkin not found")
 
-
-class GuestCheckout:
-    """Class with all the methods related to GuestCheckout"""
-    def __init__(self, room_key: str):
-        self.room_key = room_key
-        self.hotel_manager = HotelManager()
-
-    def checkout(self):
-        """Functionality of the given function"""
-        self.validate_roomkey(self.room_key)
-        # check thawt the roomkey is stored in the checkins file
-        file_store = JSON_FILES_PATH + "store_check_in.json"
-        room_key_list = self.hotel_manager.store_json_into_list(file_store, "Error: store checkin not found")
-
-        # comprobar que esa room_key es la que me han dado
-        found = False
-        for item in room_key_list:
-            if self.room_key == item["_HotelStay__room_key"]:
-                departure_date_timestamp = item["_HotelStay__departure"]
-                found = True
-        if not found:
-            raise HotelManagementException("Error: room key not found")
-
-        today = datetime.utcnow().date()
-        if datetime.fromtimestamp(departure_date_timestamp).date() != today:
-            raise HotelManagementException("Error: today is not the departure day")
-
-        file_store_checkout = JSON_FILES_PATH + "store_check_out.json"
-        room_key_list = self.hotel_manager.store_data_into_list_if_file_exists(file_store_checkout)
-
-        for checkout in room_key_list:
-            if checkout["room_key"] == self.room_key:
-                raise HotelManagementException("Guest is already out")
-
-        room_checkout = {"room_key": self.room_key,
-                         "checkout_time": datetime.timestamp(datetime.utcnow())}
-
-        room_key_list.append(room_checkout)
-
-        self.hotel_manager.write_into_json(file_store_checkout, room_key_list)
-
-        return True
-
-    def validate_roomkey(self, room_key):
-        """validates the roomkey format using a regex"""
-        r = r'^[a-fA-F0-9]{64}$'
-        myregex = re.compile(r)
-        if not myregex.fullmatch(room_key):
-            raise HotelManagementException("Invalid room key format")
-        return room_key
+            # comprobar que esa room_key es la que me han dado
+            found = False
+            for item in room_key_list:
+                if room_key == item["_HotelStay__room_key"]:
+                    departure_date_timestamp = item["_HotelStay__departure"]
+                    found = True
+            if not found:
+                raise HotelManagementException("Error: room key not found")
+    
+            today = datetime.utcnow().date()
+            if datetime.fromtimestamp(departure_date_timestamp).date() != today:
+                raise HotelManagementException("Error: today is not the departure day")
+    
+            file_store_checkout = JSON_FILES_PATH + "store_check_out.json"
+            room_key_list = self.store_data_into_list_if_file_exists(file_store_checkout)
+    
+            for checkout in room_key_list:
+                if checkout["room_key"] == room_key:
+                    raise HotelManagementException("Guest is already out")
+    
+            room_checkout = {"room_key": room_key,
+                             "checkout_time": datetime.timestamp(datetime.utcnow())}
+    
+            room_key_list.append(room_checkout)
+    
+            self.write_into_json(file_store_checkout, room_key_list)
+    
+            return True
