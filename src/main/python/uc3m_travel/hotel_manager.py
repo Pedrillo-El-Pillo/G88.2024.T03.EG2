@@ -4,6 +4,10 @@ import json
 from datetime import datetime
 
 from uc3m_travel.attributes.attribute_phone_number import PhoneNumber
+from uc3m_travel.attributes.attribute_room_key import RoomKey
+from uc3m_travel.attributes.attribute_room_type import RoomType
+from uc3m_travel.attributes.attribute_arrival_date import ArrivalDate
+from uc3m_travel.attributes.attribute_localizer import Localizer
 
 from uc3m_travel.hotel_management_exception import HotelManagementException
 from uc3m_travel.hotel_reservation import HotelReservation
@@ -64,21 +68,7 @@ class HotelManager():
                 raise HotelManagementException("Invalid credit card number (not luhn)")
             return credit_card
 
-        def validate_room_type(self, room_type):
-            """validates the room type value using regex"""
-            myregex = re.compile(r"(SINGLE|DOUBLE|SUITE)")
-            res = myregex.fullmatch(room_type)
-            if not res:
-                raise HotelManagementException("Invalid roomtype value")
-            return room_type
 
-        def validate_arrival_date(self, arrival_date):
-            """validates the arrival date format  using regex"""
-            myregex = re.compile(r"^(([0-2]\d|-3[0-1])\/(0\d|1[0-2])\/\d\d\d\d)$")
-            res = myregex.fullmatch(arrival_date)
-            if not res:
-                raise HotelManagementException("Invalid date format")
-            return arrival_date
 
         def validate_numdays(self, num_days):
             """validates the number of days"""
@@ -100,14 +90,6 @@ class HotelManager():
             dni_numbers = int(dni[0:8])
             dni_choose_letter = str(dni_numbers % 23)
             return dni[8] == dni_letter_dict[dni_choose_letter]
-
-        def validate_localizer(self, room_key):
-            """validates the localizer format using a regex"""
-            regex_format = r'^[a-fA-F0-9]{32}$'
-            myregex = re.compile(regex_format)
-            if not myregex.fullmatch(room_key):
-                raise HotelManagementException("Invalid localizer")
-            return room_key
 
 
         def read_data_from_json(self, json_file):
@@ -143,11 +125,11 @@ class HotelManager():
 
             self.check_id_card(id_card)
 
-            room_type = self.validate_room_type(room_type)
+            room_type = RoomType(room_type)
 
             my_reservation = self.check_data(arrival_date, credit_card, id_card,
                                              name_surname, num_days, phone_number,
-                                             room_type)
+                                             room_type.value)
 
             # escribo el fichero Json con todos los datos
             file_store = JSON_FILES_PATH + "store_reservation.json"
@@ -178,7 +160,7 @@ class HotelManager():
             if not regex_matches:
                 raise HotelManagementException("Invalid name format")
             credit_card = self.validatecreditcard(credit_card)
-            arrival_date = self.validate_arrival_date(arrival_date)
+            arrival_date = ArrivalDate(arrival_date)
             num_days = self.validate_numdays(num_days)
             myPhone = PhoneNumber(phone_number)
             my_reservation = HotelReservation(id_card=id_card,
@@ -186,7 +168,7 @@ class HotelManager():
                                               name_surname=name_surname,
                                               phone_number=phone_number,
                                               room_type=room_type,
-                                              arrival=arrival_date,
+                                              arrival=arrival_date.value,
                                               num_days=num_days)
             return my_reservation
 
@@ -249,7 +231,7 @@ class HotelManager():
             except KeyError as e:
                 raise HotelManagementException("Error - Invalid Key in JSON") from e
             self.check_id_card(my_id_card)
-            self.validate_localizer(my_localizer)
+            Localizer(my_localizer)
             return my_id_card, my_localizer
 
 
@@ -344,58 +326,39 @@ class HotelManager():
                 raise HotelManagementException("JSON Decode Error - Wrong JSON Format") from ex
             return input_list
 
+
         def guest_checkout(self, room_key: str) -> bool:
             """manages the checkout of a guest"""
-            successful = GuestCheckout(room_key).checkout()
-            return successful
+            my_room_key = RoomKey(room_key)
+            # check thawt the roomkey is stored in the checkins file
+            file_store = JSON_FILES_PATH + "store_check_in.json"
+            room_key_list = self.store_json_into_list(file_store, "Error: store checkin not found")
 
+            # comprobar que esa room_key es la que me han dado
+            found = False
+            for item in room_key_list:
+                if room_key == item["_HotelStay__room_key"]:
+                    departure_date_timestamp = item["_HotelStay__departure"]
+                    found = True
+            if not found:
+                raise HotelManagementException("Error: room key not found")
 
-class GuestCheckout:
-    """Class with all the methods related to GuestCheckout"""
-    def __init__(self, room_key: str):
-        self.room_key = room_key
-        self.hotel_manager = HotelManager()
+            today = datetime.utcnow().date()
+            if datetime.fromtimestamp(departure_date_timestamp).date() != today:
+                raise HotelManagementException("Error: today is not the departure day")
 
-    def checkout(self):
-        """Functionality of the given function"""
-        self.validate_roomkey(self.room_key)
-        # check thawt the roomkey is stored in the checkins file
-        file_store = JSON_FILES_PATH + "store_check_in.json"
-        room_key_list = self.hotel_manager.store_json_into_list(file_store, "Error: store checkin not found")
+            file_store_checkout = JSON_FILES_PATH + "store_check_out.json"
+            room_key_list = self.store_data_into_list_if_file_exists(file_store_checkout)
 
-        # comprobar que esa room_key es la que me han dado
-        found = False
-        for item in room_key_list:
-            if self.room_key == item["_HotelStay__room_key"]:
-                departure_date_timestamp = item["_HotelStay__departure"]
-                found = True
-        if not found:
-            raise HotelManagementException("Error: room key not found")
+            for checkout in room_key_list:
+                if checkout["room_key"] == room_key:
+                    raise HotelManagementException("Guest is already out")
 
-        today = datetime.utcnow().date()
-        if datetime.fromtimestamp(departure_date_timestamp).date() != today:
-            raise HotelManagementException("Error: today is not the departure day")
+            room_checkout = {"room_key": room_key,
+                             "checkout_time": datetime.timestamp(datetime.utcnow())}
 
-        file_store_checkout = JSON_FILES_PATH + "store_check_out.json"
-        room_key_list = self.hotel_manager.store_data_into_list_if_file_exists(file_store_checkout)
+            room_key_list.append(room_checkout)
 
-        for checkout in room_key_list:
-            if checkout["room_key"] == self.room_key:
-                raise HotelManagementException("Guest is already out")
+            self.write_into_json(file_store_checkout, room_key_list)
 
-        room_checkout = {"room_key": self.room_key,
-                         "checkout_time": datetime.timestamp(datetime.utcnow())}
-
-        room_key_list.append(room_checkout)
-
-        self.hotel_manager.write_into_json(file_store_checkout, room_key_list)
-
-        return True
-
-    def validate_roomkey(self, room_key):
-        """validates the roomkey format using a regex"""
-        r = r'^[a-fA-F0-9]{64}$'
-        myregex = re.compile(r)
-        if not myregex.fullmatch(room_key):
-            raise HotelManagementException("Invalid room key format")
-        return room_key
+            return True
