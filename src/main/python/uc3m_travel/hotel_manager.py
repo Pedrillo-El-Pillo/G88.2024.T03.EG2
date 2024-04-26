@@ -22,16 +22,7 @@ class HotelManager():
             HotelManager.instance = HotelManager.__HotelManager()
         return HotelManager.instance
 
-
-    #def __getattr__(self, nombre):
-    #    return getattr(self.instance, nombre)
-
-    #def __setattr__(self, nombre, valor):
-    #    return setattr(self.instance, nombre, valor)
-
     class __HotelManager():
-
-
 
         def __init__(self):
             pass
@@ -51,7 +42,7 @@ class HotelManager():
 
             def digits_of(credit_card):
                 """Does the luhn's algorithm to check the credit card"""
-                return [int(d) for d in str(credit_card)]
+                return [int(digit) for digit in str(credit_card)]
 
             digits = digits_of(credit_card)
             odd_digits = digits[-1::-2]
@@ -74,6 +65,8 @@ class HotelManager():
 
         def validate_arrival_date(self, arrival_date):
             """validates the arrival date format  using regex"""
+            # We use regular expressions to search in the string what we are looking for,
+            # the rules are given in 'r'.
             myregex = re.compile(r"^(([0-2]\d|-3[0-1])\/(0\d|1[0-2])\/\d\d\d\d)$")
             res = myregex.fullmatch(arrival_date)
             if not res:
