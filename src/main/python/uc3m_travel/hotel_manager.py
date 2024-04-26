@@ -8,6 +8,7 @@ from uc3m_travel.attributes.attribute_room_key import RoomKey
 from uc3m_travel.attributes.attribute_room_type import RoomType
 from uc3m_travel.attributes.attribute_arrival_date import ArrivalDate
 from uc3m_travel.attributes.attribute_localizer import Localizer
+from uc3m_travel.attributes.attribute_name_surname import NameSurname
 
 from uc3m_travel.hotel_management_exception import HotelManagementException
 from uc3m_travel.hotel_reservation import HotelReservation
@@ -67,7 +68,6 @@ class HotelManager():
             if not checksum % 10 == 0:
                 raise HotelManagementException("Invalid credit card number (not luhn)")
             return credit_card
-
 
 
         def validate_numdays(self, num_days):
@@ -154,21 +154,18 @@ class HotelManager():
         def check_data(self, arrival_date, credit_card, id_card,
                        name_surname, num_days, phone_number, room_type):
             """checks that the main data is correct"""
-            regex_format = r"^(?=^.{10,50}$)([a-zA-Z]+(\s[a-zA-Z]+)+)$"
-            my_regex = re.compile(regex_format)
-            regex_matches = my_regex.fullmatch(name_surname)
-            if not regex_matches:
-                raise HotelManagementException("Invalid name format")
+            # use the attributes classes for the checkers regEx
+            NameSurname(name_surname)
             credit_card = self.validatecreditcard(credit_card)
-            arrival_date = ArrivalDate(arrival_date)
+            ArrivalDate(arrival_date)
             num_days = self.validate_numdays(num_days)
-            myPhone = PhoneNumber(phone_number)
+            PhoneNumber(phone_number)
             my_reservation = HotelReservation(id_card=id_card,
                                               credit_card_number=credit_card,
                                               name_surname=name_surname,
                                               phone_number=phone_number,
                                               room_type=room_type,
-                                              arrival=arrival_date.value,
+                                              arrival=arrival_date,
                                               num_days=num_days)
             return my_reservation
 
@@ -215,11 +212,11 @@ class HotelManager():
             # escribo el fichero Json con todos los datos
             file_store = JSON_FILES_PATH + "store_check_in.json"
             room_key_list = self.store_data_into_list_if_file_exists(file_store)
-            # comprobar que no he hecho otro ckeckin antes
+            # check if that it hasn't been already checked in
             for item in room_key_list:
                 if my_checkin.room_key == item["_HotelStay__room_key"]:
                     raise HotelManagementException("ckeckin  ya realizado")
-            # añado los datos de mi reserva a la lista , a lo que hubiera
+            # add data to the list
             room_key_list.append(my_checkin.__dict__)
             self.write_into_json(file_store, room_key_list)
 
@@ -237,7 +234,7 @@ class HotelManager():
 
         def create_new_reservation(self, my_id_card, my_localizer, store_list):
             """checks that the reservation is correct, then creates it"""
-            # compruebo si esa reserva esta en el almacen
+            # check if the reservation is there
             found = False
             for item in store_list:
                 if my_localizer == item["_HotelReservation__localizer"]:
@@ -329,7 +326,7 @@ class HotelManager():
 
         def guest_checkout(self, room_key: str) -> bool:
             """manages the checkout of a guest"""
-            my_room_key = RoomKey(room_key)
+            RoomKey(room_key)
             # check thawt the roomkey is stored in the checkins file
             file_store = JSON_FILES_PATH + "store_check_in.json"
             room_key_list = self.store_json_into_list(file_store, "Error: store checkin not found")
